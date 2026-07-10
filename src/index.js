@@ -5,13 +5,13 @@ const express = require("express");
 const app = express();
 
 app.get("/", (req, res) => {
-  res.send("Bot Online");
+  res.send("Botはオンラインです");
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Web server running on ${PORT}`);
+  console.log(`Webサーバーを起動しました: ${PORT}`);
 });
 
 const {
@@ -34,7 +34,7 @@ const client = new Client({
 
 function requireEnv(name) {
   if (!process.env[name]) {
-    throw new Error(`Set ${name} in .env.`);
+    throw new Error(`${name} を .env に設定してください。`);
   }
 }
 
@@ -52,24 +52,24 @@ function normalizeXUrl(input) {
 
 function buildJoinEmbed(member) {
   return new EmbedBuilder()
-    .setTitle("New member joined")
+    .setTitle("新しいメンバーが参加しました")
     .setColor(0x31a66a)
     .addFields(
-      { name: "Member", value: `${member} / ${member.displayName}`, inline: false },
+      { name: "メンバー", value: `${member} / ${member.displayName}`, inline: false },
       { name: "Discord ID", value: member.id, inline: true },
-      { name: "X", value: "Not registered", inline: true }
+      { name: "X", value: "未登録", inline: true }
     )
     .setTimestamp(new Date());
 }
 
 function buildXRegisteredEmbed(saved, registeredBy) {
   return new EmbedBuilder()
-    .setTitle("X profile registered")
+    .setTitle("Xアカウントが登録されました")
     .setColor(0x2f80ed)
     .addFields(
-      { name: "Member", value: `${saved.mention} / ${saved.displayName}`, inline: false },
+      { name: "メンバー", value: `${saved.mention} / ${saved.displayName}`, inline: false },
       { name: "X", value: saved.xUrl, inline: false },
-      { name: "Registered by", value: registeredBy, inline: false }
+      { name: "登録者", value: registeredBy, inline: false }
     )
     .setTimestamp(new Date());
 }
@@ -92,7 +92,7 @@ async function registerXForMember(member, url, registeredBy) {
 }
 
 client.once(Events.ClientReady, async () => {
-  console.log(`Logged in as ${client.user.tag}`);
+  console.log(`${client.user.tag} としてログインしました`);
   await updateMemberList(client);
 });
 
@@ -102,7 +102,7 @@ client.on(Events.GuildMemberAdd, async (member) => {
     await postRecord(buildJoinEmbed(member));
     await updateMemberList(client);
   } catch (error) {
-    console.error("Failed to process new member.", error);
+    console.error("新規メンバーの処理に失敗しました。", error);
   }
 });
 
@@ -114,7 +114,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     if (!url) {
       await interaction.reply({
-        content: "Enter an X URL like `https://x.com/your_name`.",
+        content: "Xリンクは `https://x.com/ユーザー名` の形式で入力してください。",
         ephemeral: true
       });
       return;
@@ -122,7 +122,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     const member = await interaction.guild.members.fetch(interaction.user.id);
     await registerXForMember(member, url, `${interaction.user}`);
-    await interaction.reply({ content: "✅ Xアカウントを登録しました！メンバー一覧も更新しました。", ephemeral: true });
+    await interaction.reply({
+      content: "Xアカウントを登録しました。メンバー一覧も更新しました。",
+      ephemeral: true
+    });
   }
 
   if (interaction.commandName === "admin-register-x") {
@@ -130,7 +133,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     if (!url) {
       await interaction.reply({
-        content: "Enter an X URL like `https://x.com/your_name`.",
+        content: "Xリンクは `https://x.com/ユーザー名` の形式で入力してください。",
         ephemeral: true
       });
       return;
@@ -140,7 +143,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     const member = await interaction.guild.members.fetch(user.id);
     await registerXForMember(member, url, `${interaction.user}`);
     await interaction.reply({
-      content: `Registered ${member} のXアカウントを登録し、メンバー一覧を更新しました。`,
+      content: `${member} のXアカウントを登録しました。メンバー一覧も更新しました。`,
       ephemeral: true
     });
   }
@@ -157,7 +160,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 
     await updateMemberList(client);
-    await interaction.editReply(`Imported ${imported} existing members and updated the member list.`);
+    await interaction.editReply(`既存メンバー ${imported} 人を取り込み、メンバー一覧を更新しました。`);
   }
 
   if (interaction.commandName === "members") {
@@ -166,7 +169,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
   if (interaction.commandName === "refresh-members") {
     await updateMemberList(client);
-    await interaction.reply({ content: "Member list refreshed.", ephemeral: true });
+    await interaction.reply({ content: "メンバー一覧を更新しました。", ephemeral: true });
   }
 });
 
