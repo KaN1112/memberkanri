@@ -122,7 +122,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     const member = await interaction.guild.members.fetch(interaction.user.id);
     await registerXForMember(member, url, `${interaction.user}`);
-    await interaction.reply({ content: "Your X profile was registered and the member list was updated.", ephemeral: true });
+    await interaction.reply({ content: "✅ Xアカウントを登録しました！メンバー一覧も更新しました。", ephemeral: true });
   }
 
   if (interaction.commandName === "admin-register-x") {
@@ -140,7 +140,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
     const member = await interaction.guild.members.fetch(user.id);
     await registerXForMember(member, url, `${interaction.user}`);
     await interaction.reply({
-      content: `Registered ${member}'s X profile and updated the member list.`,
+      content: `Registered ${member} のXアカウントを登録し、メンバー一覧を更新しました。`,
       ephemeral: true
     });
   }
